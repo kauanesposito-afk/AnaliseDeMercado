@@ -1,111 +1,93 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// 🌐 LINHA NOVA ESSENCIAL: Faz o Render abrir o seu index.html na página inicial!
 app.use(express.static(__dirname));
 
-// ==========================================
-// CONEXÃO CORRIGIDA PARA O SUPABASE NA NUVEM
-// ==========================================
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
 // ==========================================================
-// ROTA NOVA: Para alimentar a aba "Análise de Mercado"
+// ROTA SECRETA: Roda o filtro de liquidação e envia ao banco
 // ==========================================================
+app.get('/api/importar-limpo', async (req, res) => {
+  try {
+    const csvPath = path.join(__dirname, 'planilha_produtos_concorrentes.csv');
+    
+    if (!fs.existsSync(csvPath)) {
+      return res.status(404).json({ erro: 'Arquivo CSV não encontrado no servidor.' });
+    }
+
+    const conteudo = fs.readFileSync(csvPath, 'utf-8');
+    const linhas = conteudo.split('\n');
+    
+    let cadastrados = 0;
+    let puladosLiquidacao = 0;
+
+    // Começa do 1 para pular o cabeçalho do CSV
+    for (let i = 1; i < linhas.length; i++) {
+      const linha = linhas[i].trim();
+      if (!linha) continue;
+
+      // Divide o CSV por ponto e vírgula ou vírgula
+      const colunas = linha.split(';'); 
+      if (colunas.length < 3) continue;
+
+      const sku = colunas[0]?.trim();
+      const nome_produto = colunas[1]?.trim();
+      const url_concorrente = colunas[2]?.trim();
+
+      // 🔍 O FILTRO PROIBIDO: Se o nome do produto tiver "LIQUIDACAO", "LIQUIDAÇÃO" ou "OUTLET", ele pula!
+      if (
+        nome_produto.toUpperCase().includes('LIQUIDACAO') || 
+        nome_produto.toUpperCase().includes('LIQUIDAÇÃO') ||
+        nome_produto.toUpperCase().includes('OUTLET')
+      ) {
+        puladosLiquidacao++;
+        continue;
+      }
+
+      // Salva no banco de dados Supabase
+      await pool.query(
+        'INSERT INTO meus_produtos (sku, nome_produto, url_concorrente) VALUES ($1, $2, $3)',
+        [sku, nome_produto, url_concorrente]
+      );
+      cadastrados++;
+    }
+
+    res.json({ 
+      sucesso: true, 
+      mensagem: 'Filtro executado com sucesso!',
+      produtos_salvos_sem_liquidacao: cadastrados,
+      produtos_barrados_na_liquidacao: puladosLiquidacao
+    });
+
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
+// Rota para o painel ler os dados limpos
 app.get('/api/analise-mercado', async (req, res) => {
   try {
-    // Puxa os produtos que o robô importou
     const resultado = await pool.query(
       'SELECT sku, nome_produto, url_concorrente FROM meus_produtos ORDER BY nome_produto ASC'
     );
     res.json(resultado.rows);
   } catch (erro) {
-    console.error('Erro na aba Análise de Mercado:', erro.message);
-    res.status(500).json({ erro: 'Erro ao buscar dados da tabela meus_produtos' });
+    res.status(500).json({ erro: 'Erro ao buscar dados do banco.' });
   }
 });
 
-// Rota antiga do Módulo de Compras (Mantida e corrigida)
-app.post('/api/alertas', async (req, res) => {
-  try {
-    const produtosDoFront = req.body.produtos || [];
-    
-    let mapaBanco = new Map();
-    try {
-      const produtosNoBanco = await pool.query('SELECT * FROM tb_produtos');
-      mapaBanco = new Map(produtosNoBanco.rows.map(p => [p.sku, p]));
-    } catch (e) {
-      console.log('⚠️ Tabela tb_produtos não encontrada, usando custos padrão.');
-    }
-
-    const dadosParaOSite = [];
-
-    for (const prodFront of produtosDoFront) {
-      const dadosBanco = mapaBanco.get(prodFront.id);
-      
-      const custo = dadosBanco ? parseFloat(dadosBanco.preco_custo) : 50.00;
-      const margemMinimaPercentual = dadosBanco ? parseFloat(dadosBanco.margem_minima) : 30;
-      const linkColetado = dadosBanco ? dadosBanco.link_concorrente : null;
-      
-      const precoMinimoPermitido = custo * (1 + (margemMinimaPercentual / 100));
-      
-      const precoBaseConcorrente = custo * 1.8; 
-      const precoGigil = precoBaseConcorrente - (Math.random() * 10);
-      const precoLumiss = precoBaseConcorrente - (Math.random() * 10);
-      
-      const menorPrecoConcorrente = Math.min(precoGigil, precoLumiss);
-      const seuPrecoAtual = menorPrecoConcorrente + (Math.random() * 15); 
-
-      const quemEQuem = precoGigil < precoLumiss ? 'Gigil' : 'Lumiss';
-      
-      let status = '';
-      let sugestao = '';
-
-      if (seuPrecoAtual > menorPrecoConcorrente) {
-        if (menorPrecoConcorrente - 0.10 >= precoMinimoPermitido) {
-          status = '🚨 MAIS CARO';
-          sugestao = `Reduzir preço para R$ ${(menorPrecoConcorrente - 0.10).toFixed(2)} para cobrir a ${quemEQuem}.`;
-        } else {
-          status = '✋ LIMITE CRÍTICO';
-          sugestao = `Manter R$ ${seuPrecoAtual.toFixed(2)}. Cobrir a ${quemEQuem} joga sua margem abaixo de ${margemMinimaPercentual}%.`;
-        }
-      } else {
-        status = '✅ PREÇO COMPETITIVO';
-        sugestao = 'Seu preço está excelente frente às concorrentes.';
-      }
-
-      dadosParaOSite.push({
-        sku: prodFront.id, 
-        nome: prodFront.name, 
-        custo: custo,
-        seuPreco: seuPrecoAtual,
-        gigil: precoGigil,
-        lumiss: precoLumiss,
-        status: status,
-        sugestao: sugestao,
-        link_concorrente: linkColetado
-      });
-    }
-
-    res.json(dadosParaOSite);
-
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
-  }
-});
-
-// Porta dinâmica para o Render rodar perfeitamente
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 MOTOR DEFINITIVO! Escutando na porta ${PORT} com suporte à Análise de Mercado.`);
+  console.log(`🚀 MOTOR COM FILTRO ATIVO NA PORTA ${PORT}`);
 });
