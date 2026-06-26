@@ -252,7 +252,7 @@ async function init() {
     }
 
     try {
-        const resposta = await fetch('http://localhost:3000/api/analise-mercado');
+        const resposta = await fetch('https://api-domidona.onrender.com/api/analise-mercado');
         const dadosBanco = await resposta.json();
 
         const mapaAgrupado = new Map();
