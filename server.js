@@ -6,15 +6,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🌐 LINHA NOVA ESSENCIAL: Faz o Render abrir o seu index.html na página inicial!
+app.use(express.static(__dirname));
+
 // ==========================================
-// CONEXÃO CORRIGIDA PARA O BANCO REAL
+// CONEXÃO CORRIGIDA PARA O SUPABASE NA NUVEM
 // ==========================================
 const pool = new Pool({
-  user: 'postgres',           
-  host: 'localhost',          
-  database: 'domidona_monitoramento', // Mudamos para o banco certo!
-  password: 'Kauan2011', 
-  port: 5432,                 
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // ==========================================================
@@ -22,7 +24,7 @@ const pool = new Pool({
 // ==========================================================
 app.get('/api/analise-mercado', async (req, res) => {
   try {
-    // Puxa os 863 produtos que o robô importou para o pgAdmin
+    // Puxa os produtos que o robô importou
     const resultado = await pool.query(
       'SELECT sku, nome_produto, url_concorrente FROM meus_produtos ORDER BY nome_produto ASC'
     );
@@ -38,7 +40,6 @@ app.post('/api/alertas', async (req, res) => {
   try {
     const produtosDoFront = req.body.produtos || [];
     
-    // Tenta buscar os dados se a tabela tb_produtos existir no banco
     let mapaBanco = new Map();
     try {
       const produtosNoBanco = await pool.query('SELECT * FROM tb_produtos');
@@ -103,6 +104,8 @@ app.post('/api/alertas', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('🚀 MOTOR DEFINITIVO! Escutando na porta 3000 com suporte à Análise de Mercado.');
+// Porta dinâmica para o Render rodar perfeitamente
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 MOTOR DEFINITIVO! Escutando na porta ${PORT} com suporte à Análise de Mercado.`);
 });
