@@ -1,3 +1,7 @@
+// 🌐 FORÇA O NODE A USAR IPV4 PRIMEIRO (Evita o erro ENETUNREACH do Supabase)
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -9,14 +13,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ==========================================
+// ==========================================================
 // CONEXÃO CORRIGIDA COM SUPORTE IPV4 EXPLICITO
-// ==========================================
+// ==========================================================
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL + "?sslmode=require",
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
 // ==========================================================
