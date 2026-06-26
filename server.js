@@ -9,9 +9,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// ==========================================
+// CONEXÃO CORRIGIDA COM SUPORTE IPV4 EXPLICITO
+// ==========================================
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  connectionString: process.env.DATABASE_URL + "?sslmode=require",
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // ==========================================================
