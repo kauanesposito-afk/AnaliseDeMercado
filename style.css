@@ -1,0 +1,409 @@
+/* ===== DESIGN SYSTEM MINIMALISTA & MODERNO ===== */
+:root {
+    --bg-page: #f8fafc;
+    --bg-surface: #ffffff;
+    --border-light: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --accent: #c026d3; /* Domidona Purple */
+    --accent-light: #fae8ff;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== CABEÇALHO GLASSMORPHISM ===== */
+.top-bar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-light);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.brand-logo {
+    height: 32px; /* Tamanho moderno e discreto para a logo */
+    object-fit: contain;
+}
+
+.brand-text {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border-left: 1px solid var(--border-light);
+    padding-left: 1.2rem;
+}
+
+.brand-text h1 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+.badge {
+    background: var(--bg-page);
+    border: 1px solid var(--border-light);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Botões Modernos */
+.btn-modern {
+    background-color: var(--text-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-modern:hover {
+    background-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* ===== BARRA DE FERRAMENTAS ===== */
+.toolbar {
+    max-width: 1200px;
+    margin: 2rem auto 1rem;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.search-container {
+    position: relative;
+    width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+#search-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 0.5rem 1rem 0.5rem 2.2rem;
+    font-size: 0.85rem;
+    outline: none;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+#search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+/* Abas Minimalistas */
+.category-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--bg-surface);
+    padding: 0.3rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+}
+
+/* ===== RESUMO ===== */
+.summary-section {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.summary-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-surface);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.summary-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* ===== GRID DE PRODUTOS ===== */
+.skus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto 4rem;
+    padding: 0 1.5rem;
+}
+
+/* Cartão Premium */
+.sku-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.sku-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.sku-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.sku-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+.sku-info h3 {
+    font-size: 0.85rem;
+    font-family: monospace;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+}
+
+.sku-info p {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+/* Grade Menor e Elegante */
+.size-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.size-item {
+    display: flex;
+    flex-direction: column;
+    width: 42px;
+}
+
+.size-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+}
+
+.size-input {
+    width: 100%;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 0.3rem 0;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.2s;
+    background: var(--bg-page);
+}
+
+.size-input:focus {
+    border-color: var(--accent);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+/* Rodapé do Cartão */
+.sku-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.multiplier-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-page);
+    border: 1px solid var(--border-light);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+
+.multiplier-input {
+    width: 40px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.final-total {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.btn-print-single {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-print-single:hover {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+}
+
+/* ===== REGRAS DE IMPRESSÃO ===== */
+.only-print { display: none; }
+
+@media print {
+    @page { margin: 1cm; size: A4 portrait; }
+    body { background: white; font-family: sans-serif; }
+    .no-print { display: none !important; }
+    
+    .only-print {
+        display: block;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #000;
+        padding-bottom: 1rem;
+    }
+    .skus-grid { display: block; padding: 0; }
+    .sku-card { border: 1px solid #ddd; margin-bottom: 1rem; page-break-inside: avoid; box-shadow: none; }
+    body.printing-single .sku-card:not(.print-active) { display: none !important; }
+    .size-input { border: none; border-bottom: 1px solid #ccc; border-radius: 0; background: transparent; }
+}
+
+/* ===== ESTILOS PARA OS QUADRADOS DE DATA DE ENTREGA ===== */
+.squares-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.date-box {
+    width: 100px;
+    height: 35px;
+    border: 1px solid var(--border-hover);
+    border-radius: 4px;
+    background: transparent;
+}
+
+/* Força os quadrados a ficarem bem visíveis na hora de imprimir */
+@media print {
+    .date-box {
+        border: 1.5px solid #000;
+    }
+}

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão 360 Domidona - Pedidos</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .brand-text-container { display: flex; align-items: center; gap: 20px; }
+        .nav-tabs { display: flex; gap: 10px; margin-left: 20px; }
+        .tab-btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; font-family: 'Inter', sans-serif; }
+        .tab-btn.ativo { background: #0f172a; color: white; }
+        .tab-btn.secundario { background: rgba(255, 255, 255, 0.4); color: #334155; border: 1px solid rgba(0,0,0,0.05); }
+        .tab-btn.secundario:hover { background: rgba(0, 0, 0, 0.05); }
+
+        .view-aba { display: none; }
+        .view-aba.ativa { display: block; }
+
+        .card-analise { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin: 20px auto; max-width: 1400px; }
+        .card-analise h2 { font-size: 18px; color: #0f172a; font-weight: 600; margin-bottom: 5px; }
+        
+        .search-analise-container { position: relative; max-width: 400px; margin: 20px 0; }
+        .search-analise-input { width: 100%; padding: 12px 16px 12px 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; transition: 0.2s; outline: none; }
+        .search-analise-input:focus { border-color: #0f172a; box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1); }
+        
+        .tabela-custom { width: 100%; border-collapse: collapse; text-align: left; }
+        .tabela-custom th { background: #f8fafc; padding: 14px 16px; color: #64748b; font-weight: 600; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
+        .tabela-custom td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155; vertical-align: middle; }
+        .tabela-custom tr:hover { background-color: #f8fafc; }
+        
+        .col-produto-analise { display: flex; align-items: center; gap: 15px; }
+        .img-produto-analise { width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; }
+        .sku-highlight { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: 600; color: #0f172a; font-size: 13px; }
+        
+        .btn-box-container { display: flex; flex-direction: column; gap: 6px; }
+        .btn-link-conc { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-weight: 600; font-size: 12px; border-radius: 6px; text-decoration: none; transition: 0.2s; width: 140px; }
+        .btn-gigil { background: #fff159; color: #111; border: 1px solid #e6d84f; }
+        .btn-gigil:hover { background: #f4e43f; }
+        .btn-lumiss { background: #0f172a; color: white; border: 1px solid #0f172a; }
+        .btn-lumiss:hover { background: #1e293b; }
+        .btn-shopee { background: #ff5722; color: white; border: 1px solid #e64a19; }
+        .btn-shopee:hover { background: #f4511e; }
+    </style>
+</head>
+<body>
+    <header class="top-bar no-print">
+        <div class="brand">
+            <img src="Logo.png" alt="Domidona" class="brand-logo">
+            <div class="brand-text-container">
+                <div class="brand-text">
+                    <h1>Gestão 360</h1>
+                    <span class="badge" id="label-modulo-atual">Módulo Compras</span>
+                </div>
+                <nav class="nav-tabs">
+                    <button class="tab-btn ativo" id="tab-compras-btn">Módulo Compras</button>
+                    <button class="tab-btn secundario" id="tab-analise-btn">Análise de Mercado</button>
+                </nav>
+            </div>
+        </div>
+        <button id="btn-print-all" class="btn-modern">Imprimir Visíveis 🖨️</button>
+    </header>
+
+    <div id="secao-compras-dinamica">
+        <section class="toolbar no-print" id="toolbar-compras">
+            <div class="search-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-input" placeholder="Pesquisar SKU ou modelo...">
+            </div>
+            <div class="category-tabs" id="category-tabs"></div>
+        </section>
+
+        <div class="print-header only-print">
+            <img src="Logo.png" alt="Domidona" style="height: 30px; margin-bottom: 10px;">
+            <h1>Pedido de Compra</h1>
+            <p>Emissão: <span id="print-date"></span></p>
+        </div>
+
+        <main id="main-compras">
+            <section class="summary-section">
+                <div class="summary-box">
+                    <span class="summary-label">Total Geral</span>
+                    <strong id="grand-total" class="summary-value">0</strong>
+                </div>
+            </section>
+            <section id="skus-container" class="skus-grid"></section>
+        </main>
+    </div>
+
+    <div id="aba-analise-view" class="view-aba">
+        <main>
+            <div class="card-analise">
+                <h2>📊 Monitoramento de Concorrência</h2>
+                
+                <div class="search-analise-container">
+                    <svg class="search-icon" style="position: absolute; left: 14px; top: 15px; color: #94a3b8;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-analise-input" class="search-analise-input" placeholder="Pesquisar SKU Pai ou nome da bota...">
+                </div>
+
+                <table class="tabela-custom">
+                    <thead>
+                        <tr>
+                            <th>SKU Pai</th>
+                            <th>Foto e Nome do Produto Pai</th>
+                            <th>Canais Gigil 🟡</th>
+                            <th>Canais Lumiss ⚫</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo-tabela-analise">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #64748b; padding: 30px;">Clique na aba para carregar os dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+ <script src="script.js"></script>
+
+    <script>
+        const btnCompras = document.getElementById('tab-compras-btn');
+        const btnAnalise = document.getElementById('tab-analise-btn');
+        const secaoCompras = document.getElementById('secao-compras-dinamica');
+        const viewAnalise = document.getElementById('aba-analise-view');
+        const labelModulo = document.getElementById('label-modulo-atual');
+        const searchAnaliseInput = document.getElementById('search-analise-input');
+        const corpoTabela = document.getElementById('corpo-tabela-analise');
+
+        let todosOsProdutosBanco = []; 
+        let produtosPaiAgrupados = []; 
+
+        btnCompras.addEventListener('click', () => {
+            btnCompras.className = 'tab-btn ativo';
+            btnAnalise.className = 'tab-btn secundario';
+            secaoCompras.style.display = 'block';
+            viewAnalise.className = 'view-aba';
+            labelModulo.textContent = 'Módulo Compras';
+        });
+
+        btnAnalise.addEventListener('click', async () => {
+            btnAnalise.className = 'tab-btn ativo';
+            btnCompras.className = 'tab-btn secundario';
+            secaoCompras.style.display = 'none';
+            viewAnalise.className = 'view-aba ativa';
+            labelModulo.textContent = 'Análise de Mercado';
+
+            if (todosOsProdutosBanco.length === 0) {
+                corpoTabela.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 30px;">🔄 Buscando referências no banco e mapeando fotos do catálogo...</td></tr>`;
+                try {
+                    const resposta = await fetch('http://localhost:3000/api/analise-mercado');
+                    todosOsProdutosBanco = await resposta.json();
+                    
+                    processarEAgruparProdutosPai();
+                    renderizarTabelaAnalise(produtosPaiAgrupados);
+                } catch (erro) {
+                    console.error(erro);
+                    corpoTabela.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #ef4444; padding: 30px;">❌ Erro ao conectar com o backend. O backend está ativo?</td></tr>`;
+                }
+            } else {
+                renderizarTabelaAnalise(produtosPaiAgrupados);
+            }
+        });
+
+        // ESSA FUNÇÃO AGORA SÓ GERA O TERMO DE BUSCA, NÃO ALTERA O NOME DA TELA
+        function gerarTermoBuscaOtimizado(nomeCompleto) {
+            if (!nomeCompleto) return "Calçado";
+            
+            const n = nomeCompleto.toLowerCase();
+            
+            // 1. Tipo Base
+            let tipo = "Sapato";
+            if (n.includes("bota")) tipo = "Bota";
+            else if (n.includes("coturno")) tipo = "Coturno";
+            else if (n.includes("sapatilha")) tipo = "Sapatilha";
+            else if (n.includes("scarpin")) tipo = "Scarpin";
+            else if (n.includes("sandália") || n.includes("sandalia")) tipo = "Sandália";
+            else if (n.includes("tênis") || n.includes("tenis")) tipo = "Tênis";
+            else if (n.includes("tamanco")) tipo = "Tamanco";
+            else if (n.includes("rasteira") || n.includes("rasteirinha")) tipo = "Rasteira";
+            else if (n.includes("mochila")) tipo = "Mochila";
+            else if (n.includes("bolsa")) tipo = "Bolsa";
+            else if (n.includes("nécessaire") || n.includes("necessaire")) tipo = "Necessaire";
+
+            // 2. Cor
+            let cor = "";
+            const listaCores = ["preta", "preto", "marrom", "off white", "off-white", "branco", "branca", "rosa", "dourado", "dourada", "prata", "prateada", "cobre", "caramelo", "nude", "marsala", "bege", "vinil", "glitter"];
+            for (let c of listaCores) {
+                if (n.includes(c)) {
+                    cor = c.charAt(0).toUpperCase() + c.slice(1);
+                    break;
+                }
+            }
+
+            // 3. Modelo/Atributo Principal
+            let modeloExtra = "";
+            const modelosConhecidos = ["capa", "montaria", "over the knee", "western", "texana", "slouchy", "biker", "animal print", "social", "slingback", "bicolor", "mary jane", "boneca", "clog", "anabela", "plataforma", "tratorado", "tratorada", "streetwear", "street", "flat", "pedrarias", "mola", "espiral", "laço", "laco", "vincl", "unicórnio", "unicornio"];
+            for (let m of modelosConhecidos) {
+                if (n.includes(m)) {
+                    modeloExtra = m.charAt(0).toUpperCase() + m.slice(1);
+                    break;
+                }
+            }
+
+            let nomeFinal = tipo;
+            if (modeloExtra) nomeFinal += " " + modeloExtra;
+            if (cor) nomeFinal += " " + cor;
+
+            return nomeFinal;
+        }
+
+       function processarEAgruparProdutosPai() {
+            const cacheMap = new Map();
+
+            todosOsProdutosBanco.forEach(prod => {
+                let skuLimpo = prod.sku.replace(/^DD|^MF/, '').split('-')[0].trim();
+                let skuPai = skuLimpo.substring(0, 9);
+                
+                // Se for o saquinho, força o SKU padrão para não quebrar o mapa
+                if (prod.sku.toLowerCase().includes("saquinho")) {
+                    skuPai = "saquinho";
+                }
+                
+                const imagemCorrespondente = typeof catalogoImagensOficiais !== 'undefined' ? catalogoImagensOficiais[skuPai] : null;
+                
+                if (imagemCorrespondente || skuPai === "saquinho") {
+                    if (!cacheMap.has(skuPai)) {
+                        let nomeExibir = typeof skusData !== 'undefined' ? skusData.find(s => s.id === skuPai)?.name : prod.nome_produto;
+                        
+                        // TRAVA DE SEGURANÇA PARA O SAQUINHO ERRADO DO BANCO:
+                        if (skuPai === "saquinho") {
+                            nomeExibir = "Bag Shoes Domidona";
+                        } else if (!nomeExibir) {
+                            nomeExibir = prod.nome_produto;
+                        }
+                        
+                        const termoSimplificado = gerarTermoBuscaOtimizado(nomeExibir);
+
+                        cacheMap.set(skuPai, {
+                            sku: skuPai,
+                            nome_original: nomeExibir, 
+                            termo_busca: skuPai === "saquinho" ? "Bag Shoes Domidona" : termoSimplificado, 
+                            image: imagemCorrespondente || 'https://placehold.co/55x55?text=Domidona'
+                        });
+                    }
+                }
+            });
+
+            produtosPaiAgrupados = Array.from(cacheMap.values());
+        }
+
+        function renderizarTabelaAnalise(listaDeProdutos) {
+            if (listaDeProdutos.length === 0) {
+                corpoTabela.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Nenhum modelo correspondente encontrado.</td></tr>`;
+                return;
+            }
+
+            let htmlLinhas = '';
+            listaDeProdutos.forEach(prod => {
+                // Aqui os links usam o termo simplificado otimizado (ex: Bota Capa Marrom Gigil)
+                const termoGigil = prod.termo_busca + " Gigil";
+                const termoLumiss = prod.termo_busca + " Lumiss";
+
+                const mlGigil = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoGigil)}`;
+                const shopeeGigil = `https://shopee.com.br/search?keyword=${encodeURIComponent(termoGigil)}`;
+                const mlLumiss = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoLumiss)}`;
+                const shopeeLumiss = `https://shopee.com.br/search?keyword=${encodeURIComponent(termoLumiss)}`;
+
+                htmlLinhas += `
+                    <tr>
+                        <td><span class="sku-highlight">${prod.sku}</span></td>
+                        <td>
+                            <div class="col-produto-analise">
+                                <img src="${prod.image}" class="img-produto-analise" alt="Produto" onerror="this.src='https://placehold.co/55x55?text=Bota'">
+                                <span><b>${prod.nome_original}</b></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-box-container">
+                                <a href="${mlGigil}" target="_blank" class="btn-link-conc btn-gigil" style="margin-bottom: 4px;">Mercado Livre 🟡</a>
+                                <a href="${shopeeGigil}" target="_blank" class="btn-link-conc btn-shopee">Shopee 🟠</a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-box-container">
+                                <a href="${mlLumiss}" target="_blank" class="btn-link-conc btn-lumiss" style="margin-bottom: 4px;">Mercado Livre ⚫</a>
+                                <a href="${shopeeLumiss}" target="_blank" class="btn-link-conc btn-shopee">Shopee 🟠</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            corpoTabela.innerHTML = htmlLinhas;
+        }
+
+        searchAnaliseInput.addEventListener('input', (e) => {
+            const termoPesquisa = e.target.value.toLowerCase();
+            const filtrados = produtosPaiAgrupados.filter(prod => {
+                return prod.sku.toLowerCase().includes(termoPesquisa) || 
+                       prod.nome_original.toLowerCase().includes(termoPesquisa);
+            });
+            renderizarTabelaAnalise(filtrados);
+        });
+    </script>
