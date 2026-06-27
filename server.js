@@ -4,6 +4,9 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+// 🔐 IGNORA O ERRO DE CERTIFICADO DO SUPABASE
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -26,7 +29,7 @@ app.get('/api/importar-limpo', async (req, res) => {
     let cadastrados = 0;
 
     for (let i = 1; i < linhas.length; i++) {
-      const linha = linhas[i].trim();
+      const linha = pandas_ou_linha = linhas[i].trim();
       if (!linha) continue;
 
       const colunas = linha.split(';'); 
