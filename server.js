@@ -12,13 +12,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🚀 AGORA VAI: Conexão direta usando o identificador correto do seu projeto!
+// 🚀 AGORA FORCEI O IPV4 VIA POOLER: Sem chance de dar ENETUNREACH
 const pool = new Pool({
-  user: 'postgres',
-  host: 'db.gswtcouvgyizlykaofaw.supabase.co', // Sigla do seu projeto aplicada aqui
+  user: 'postgres.gswtcouvgyizlykaofaw', // Usuário + ID do Projeto exigido pelo Pooler
+  host: 'aws-0-us-west-2.pooler.supabase.com', // Servidor de Pooler IPv4 da AWS
   database: 'postgres',
-  password: '1256602K@uan', // Sua senha protegida por blocos
-  port: 5432,
+  password: '1256602K@uan',
+  port: 6543, // Porta do Pooler que contorna o IPv6 do Render
   ssl: { rejectUnauthorized: false }
 });
 
