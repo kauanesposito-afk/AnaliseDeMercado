@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// 🔐 IGNORA O ERRO DE CERTIFICADO
+// 🔐 IGNORA O ERRO DE CERTIFICADO DO SUPABASE
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const app = express();
@@ -12,12 +12,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🚀 CONEXÃO INDESTRUTÍVEL: Separada por objetos para aceitar o @ na senha
+// 🚀 AGORA VAI: Conexão direta usando o identificador correto do seu projeto!
 const pool = new Pool({
   user: 'postgres',
-  host: 'db.kauanesposito-comparacao.supabase.co', // Endereço direto do seu projeto
+  host: 'db.gswtcouvgyizlykaofaw.supabase.co', // Sigla do seu projeto aplicada aqui
   database: 'postgres',
-  password: '1256602K@uan', // Sua senha pura, sem risco de quebrar a URL
+  password: '1256602K@uan', // Sua senha protegida por blocos
   port: 5432,
   ssl: { rejectUnauthorized: false }
 });
