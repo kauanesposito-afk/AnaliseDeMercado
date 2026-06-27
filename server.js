@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// 🔐 IGNORA O ERRO DE CERTIFICADO DO SUPABASE
+// 🔐 IGNORA O ERRO DE CERTIFICADO
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const app = express();
@@ -12,9 +12,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🚀 FORMATO EXIGIDO PELO SUPABASE NA PORTA 6543
+// 🚀 CONEXÃO INDESTRUTÍVEL: Separada por objetos para aceitar o @ na senha
 const pool = new Pool({
-  connectionString: "postgres://postgres.yisgshgffskbshqyvskb:1256602K@uan@aws-0-us-west-2.pooler.supabase.com:6543/postgres?sslmode=require",
+  user: 'postgres',
+  host: 'db.kauanesposito-comparacao.supabase.co', // Endereço direto do seu projeto
+  database: 'postgres',
+  password: '1256602K@uan', // Sua senha pura, sem risco de quebrar a URL
+  port: 5432,
   ssl: { rejectUnauthorized: false }
 });
 
