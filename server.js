@@ -12,18 +12,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🚀 CONEXÃO CORRIGIDA E DEFINITIVA (Porta do Pooler: 6543)
+// 🚀 FORMATO EXIGIDO PELO SUPABASE NA PORTA 6543
 const pool = new Pool({
-  connectionString: "postgres://postgres:1256602K@uan@aws-0-us-west-2.pooler.supabase.com:6543/postgres?sslmode=require",
+  connectionString: "postgres://postgres.yisgshgffskbshqyvskb:1256602K@uan@aws-0-us-west-2.pooler.supabase.com:6543/postgres?sslmode=require",
   ssl: { rejectUnauthorized: false }
 });
 
-// Rota de Importação Limpa (Lê o CSV, filtra as liquidações e insere no Supabase)
+// Rota de Importação Limpa
 app.get('/api/importar-limpo', async (req, res) => {
   try {
     const csvPath = path.join(__dirname, 'planilha_produtos_concorrentes.csv');
     if (!fs.existsSync(csvPath)) {
-      return res.status(404).json({ erro: 'O arquivo planilha_produtos_concorrentes.csv não foi encontrado no servidor.' });
+      return res.status(404).json({ erro: 'O arquivo planilha_produtos_concorrentes.csv não foi encontrado.' });
     }
 
     const conteudo = fs.readFileSync(csvPath, 'utf-8');
@@ -31,7 +31,6 @@ app.get('/api/importar-limpo', async (req, res) => {
     let cadastrados = 0;
     let puladosLiquidacao = 0;
 
-    // Começa do 1 para ignorar o cabeçalho do CSV
     for (let i = 1; i < linhas.length; i++) {
       const linha = linhas[i].trim();
       if (!linha) continue;
@@ -43,7 +42,6 @@ app.get('/api/importar-limpo', async (req, res) => {
       const nome_produto = colunas[1]?.trim();
       const url_concorrente = colunas[2]?.trim();
 
-      // 🔍 FILTRO DE SEGURANÇA: Se tiver liquidação, liquidaçao ou outlet, ignora o produto
       if (
         nome_produto.toUpperCase().includes('LIQUIDACAO') || 
         nome_produto.toUpperCase().includes('LIQUIDAÇÃO') ||
@@ -53,7 +51,6 @@ app.get('/api/importar-limpo', async (req, res) => {
         continue;
       }
 
-      // Salva no banco de dados Supabase
       await pool.query(
         'INSERT INTO meus_produtos (sku, nome_produto, url_concorrente) VALUES ($1, $2, $3)',
         [sku, nome_produto, url_concorrente]
@@ -74,7 +71,7 @@ app.get('/api/importar-limpo', async (req, res) => {
   }
 });
 
-// Rota para o Painel Principal ler os dados limpos
+// Rota para o Painel Principal
 app.get('/api/analise-mercado', async (req, res) => {
   try {
     const resultado = await pool.query(
@@ -82,10 +79,9 @@ app.get('/api/analise-mercado', async (req, res) => {
     );
     res.json(resultado.rows);
   } catch (erro) {
-    console.error(erro);
     res.status(500).json({ erro: 'Erro ao buscar dados do banco.' });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 SERVIDOR ONLINE NA PORTA ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 SERVIDOR ONLINE`));
