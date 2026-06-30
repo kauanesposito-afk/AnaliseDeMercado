@@ -193,54 +193,55 @@
 
     <script>
         // ==========================================
-        // 🔒 SISTEMA DE LOGIN BLINDADO
+        // 🔒 SISTEMA DE LOGIN BLINDADO (CHAVE COMPLETA)
         // ==========================================
         const SUPABASE_URL = 'https://gswtcouvgyizlykaofaw.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g3dI6XN9U7wA';
 
-        // 1. Tenta inicializar o Supabase (Evita quebrar se a internet/adblock falhar)
+        // 1. Tenta inicializar o Supabase com segurança
         let supabase;
         try {
             if (window.supabase) {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
         } catch(e) {
-            console.error("Erro ao carregar módulo de segurança.");
+            console.error("Erro ao carregar módulo de segurança:", e);
         }
 
         async function verificarSessao() {
             if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-            }
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('app-content').style.display = 'block';
+                }
+            } catch(e) { console.error(e); }
         }
         verificarSessao();
 
-        // 🚀 O MOTOR DO BOTÃO DE ENTRAR
+        // 🚀 O MOTOR DO BOTÃO DE ENTRAR (REVISADO)
         async function fazerLogin() {
-            const email = document.getElementById('email-login').value;
+            const email = document.getElementById('email-login').value.trim(); // Remove espaços acidentais no fim do e-mail
             const senha = document.getElementById('senha-login').value;
             const msgErro = document.getElementById('erro-login');
             const btnLogin = document.querySelector('.login-btn');
             
-            // Função interna para formatar o erro e devolver o botão ao normal
             const mostrarErro = (mensagem) => {
                 msgErro.textContent = mensagem;
                 msgErro.style.display = 'block';
                 btnLogin.textContent = 'Entrar no Sistema';
                 btnLogin.disabled = false;
+                btnLogin.style.opacity = '1';
             };
 
-            // Reseta a tela para o estado de "carregando"
             msgErro.style.display = 'none';
             btnLogin.textContent = '⏳ Verificando...';
             btnLogin.disabled = true;
+            btnLogin.style.opacity = '0.7';
 
             try {
-                // Checa se o AdBlock bloqueou o Supabase
-                if (!supabase) throw new Error("Sistema bloqueado pelo navegador.");
+                if (!supabase) throw new Error("Sistema bloqueado ou não carregado pelo navegador.");
 
                 // Vai no banco e tenta validar a senha
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
@@ -252,7 +253,7 @@
                     document.getElementById('app-content').style.display = 'block';
                 }
             } catch (err) {
-                mostrarErro('❌ Erro de conexão. Verifique seu antivírus/adblock.');
+                mostrarErro('❌ Erro de conexão. Verifique seu antivírus ou AdBlock.');
                 console.error(err);
             }
         }
