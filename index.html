@@ -148,7 +148,7 @@
             if (todosOsProdutosBanco.length === 0) {
                 corpoTabela.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 30px;">🔄 Buscando referências no banco e mapeando fotos do catálogo...</td></tr>`;
                 try {
-                    const resposta = await fetch('http://localhost:3000/api/analise-mercado');
+                    const resposta = await fetch('https://api-domidona.onrender.com/api/analise-mercado');
                     todosOsProdutosBanco = await resposta.json();
                     
                     processarEAgruparProdutosPai();
