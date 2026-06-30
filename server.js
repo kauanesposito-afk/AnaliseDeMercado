@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// 🔐 IGNORA O ERRO DE CERTIFICADO DO SUPABASE
+// 🔐 DESATIVA TRAVAS DE SSL DO NODE
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const app = express();
@@ -12,14 +12,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🚀 AGORA FORCEI O IPV4 VIA POOLER: Sem chance de dar ENETUNREACH
+// 🚀 POOL DE CONEXÃO MULTI-MODO (Usa os dados do seu projeto real 'gswtcouvgyizlykaofaw')
 const pool = new Pool({
-  user: 'postgres.gswtcouvgyizlykaofaw', // Usuário + ID do Projeto exigido pelo Pooler
-  host: 'aws-0-us-west-2.pooler.supabase.com', // Servidor de Pooler IPv4 da AWS
+  user: 'postgres',
+  host: 'db.gswtcouvgyizlykaofaw.supabase.co',
   database: 'postgres',
   password: '1256602K@uan',
-  port: 6543, // Porta do Pooler que contorna o IPv6 do Render
-  ssl: { rejectUnauthorized: false }
+  port: 6543, // Porta 6543 força o uso de IPv4 no Render, matando o erro ENETUNREACH
+  ssl: { rejectUnauthorized: false },
+  connectionTimeoutMillis: 10000 // Aguarda até 10 segundos para não dar timeout
 });
 
 // Rota de Importação Limpa
@@ -27,7 +28,7 @@ app.get('/api/importar-limpo', async (req, res) => {
   try {
     const csvPath = path.join(__dirname, 'planilha_produtos_concorrentes.csv');
     if (!fs.existsSync(csvPath)) {
-      return res.status(404).json({ erro: 'O arquivo planilha_produtos_concorrentes.csv não foi encontrado.' });
+      return res.status(404).json({ erro: 'O arquivo planilha_produtos_concorrentes.csv não foi encontrado no servidor.' });
     }
 
     const conteudo = fs.readFileSync(csvPath, 'utf-8');
@@ -56,7 +57,7 @@ app.get('/api/importar-limpo', async (req, res) => {
       }
 
       await pool.query(
-        'INSERT INTO meus_produtos (sku, nome_produto, url_concorrente) VALUES ($1, $2, $3)',
+        'INSERT INTO meus_produtos (sku, nome_produto, url_concorrente) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
         [sku, nome_produto, url_concorrente]
       );
       cadastrados++;
@@ -64,18 +65,18 @@ app.get('/api/importar-limpo', async (req, res) => {
 
     res.json({ 
       sucesso: true, 
-      mensagem: 'Filtro executado com sucesso!',
-      produtos_salvos_sem_liquidacao: cadastrados,
-      produtos_barrados_na_liquidacao: puladosLiquidacao
+      mensagem: 'Sua planilha foi processada com sucesso!',
+      produtos_salvos_no_supabase: cadastrados,
+      produtos_limpos_ignorados: puladosLiquidacao
     });
 
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({ erro: erro.message });
+    res.status(500).json({ erro: 'Erro interno no banco de dados: ' + erro.message });
   }
 });
 
-// Rota para o Painel Principal
+// Rota para o Painel de Mercado
 app.get('/api/analise-mercado', async (req, res) => {
   try {
     const resultado = await pool.query(
@@ -83,9 +84,9 @@ app.get('/api/analise-mercado', async (req, res) => {
     );
     res.json(resultado.rows);
   } catch (erro) {
-    res.status(500).json({ erro: 'Erro ao buscar dados do banco.' });
+    res.status(500).json({ erro: 'Erro ao buscar dados do banco de dados.' });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 SERVIDOR ONLINE`));
+app.listen(PORT, () => console.log(`🚀 SERVIDOR INICIADO COM SUCESSO`));
