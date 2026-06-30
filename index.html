@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ESTILOS PADRÕES DO SEU SITE MANTIDOS */
+        /* ESTILOS PADRÕES DO SEU SITE */
         body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; }
         .brand-text-container { display: flex; align-items: center; gap: 20px; }
         .nav-tabs { display: flex; gap: 10px; margin-left: 20px; }
@@ -47,27 +47,51 @@
         .btn-shopee { background: #ff5722; color: white; border: 1px solid #e64a19; }
         .btn-shopee:hover { background: #f4511e; }
 
-        /* 🔒 ESTILOS DA TELA DE LOGIN OVERLAY */
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .login-box h2 { margin-top: 0; color: #0f172a; font-size: 24px; }
-        .login-input { width: 90%; padding: 12px 15px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; font-family: 'Inter'; }
-        .login-input:focus { border-color: #2563eb; }
-        .login-btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        /* ============================================================
+           🔒 ESTILOS DA TELA DE LOGIN OVERLAY (DESIGN PREMIUM) 
+           ============================================================ */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 16px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        
+        .login-box img { height: 45px; margin-bottom: 15px; }
+        .login-box h2 { margin-top: 0; color: #0f172a; font-size: 22px; font-weight: 700; margin-bottom: 5px;}
+        .login-box p { color: #64748b; font-size: 14px; margin-bottom: 25px; }
+        
+        /* Mensagem de Erro Personalizada */
+        .error-msg { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 20px; border: 1px solid #f87171; display: none; }
+        
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+        
+        .login-input { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; font-family: 'Inter', sans-serif; box-sizing: border-box; transition: 0.2s; }
+        .login-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        .login-btn { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; transition: 0.2s; margin-top: 10px; }
         .login-btn:hover { background: #1d4ed8; }
-        .error-msg { color: #ef4444; font-size: 13px; margin-top: 10px; display: none; }
+        .login-btn:disabled { cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
+            <img src="Logo.png" alt="Domidona" onerror="this.style.display='none'">
             <h2>Gestão 360</h2>
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 25px;">Faça login para acessar o sistema.</p>
-            <input type="email" id="email-login" class="login-input" placeholder="Seu E-mail">
-            <input type="password" id="senha-login" class="login-input" placeholder="Sua Senha">
+            <p>A plataforma integrada para o sucesso do seu negócio.</p>
+
+            <div id="erro-login" class="error-msg">"PUMM" Acesso negado!</div>
+
+            <div class="input-group">
+                <label>E-mail Corporativo</label>
+                <input type="email" id="email-login" class="login-input" placeholder="seu.email@exemplo.com">
+            </div>
+            
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="senha-login" class="login-input" placeholder="••••••••">
+            </div>
+
             <button class="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
-            <div id="erro-login" class="error-msg">Usuário ou senha incorretos!</div>
         </div>
     </div>
 
@@ -143,10 +167,8 @@
         // 🔒 CONFIGURAÇÃO DE SEGURANÇA SUPABASE
         // ==========================================
         
-        // COLQUE AS SUAS CHAVES DO SUPABASE AQUI (Vou te mostrar onde pegar abaixo)
-        // 🔐 CHAVES DE CONEXÃO DEFINITIVAS DO SEU FRONTEND
-const SUPABASE_URL = 'https://gswtcouvgyizlykaofaw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g3dI6XN9U7wA';
+        const SUPABASE_URL = 'https://gswtcouvgyizlykaofaw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g3dI6XN9U7wA';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -160,7 +182,7 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
         }
         verificarSessao();
 
-      // Função do botão de entrar
+        // 🚀 FUNÇÃO DE LOGIN TURBINADA
         async function fazerLogin() {
             const email = document.getElementById('email-login').value;
             const senha = document.getElementById('senha-login').value;
@@ -170,7 +192,7 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
             // 1. Prepara a tela para o carregamento
             msgErro.style.display = 'none';
             btnLogin.textContent = '⏳ Verificando credenciais...';
-            btnLogin.disabled = true; // Impede que a pessoa clique 10 vezes seguidas
+            btnLogin.disabled = true; 
             btnLogin.style.opacity = '0.7';
 
             try {
@@ -178,7 +200,6 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
                 
                 if (error) {
-                    // Se a senha estiver errada, devolve o botão ao normal e dá o "PUMM"
                     msgErro.textContent = '"PUMM" Acesso negado!';
                     msgErro.style.display = 'block';
                     
@@ -186,12 +207,10 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
                     btnLogin.disabled = false;
                     btnLogin.style.opacity = '1';
                 } else {
-                    // Se deu certo, libera o site instantaneamente
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('app-content').style.display = 'block';
                 }
             } catch (err) {
-                // Se a internet cair ou o navegador bloquear, ele avisa aqui
                 console.error(err);
                 msgErro.textContent = '❌ Erro de conexão com o servidor.';
                 msgErro.style.display = 'block';
@@ -200,6 +219,12 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
                 btnLogin.disabled = false;
                 btnLogin.style.opacity = '1';
             }
+        }
+
+        // Função do botão de sair
+        async function fazerLogout() {
+            await supabase.auth.signOut();
+            window.location.reload();
         }
 
         // ==========================================
@@ -234,6 +259,7 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
             if (todosOsProdutosBanco.length === 0) {
                 corpoTabela.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 30px;">🔄 Buscando referências no banco de dados...</td></tr>`;
                 try {
+                    // 🚀 LINK DEFINITIVO DO SEU SERVIDOR RENDER!
                     const resposta = await fetch('https://api-domidona.onrender.com/api/analise-mercado');
                     todosOsProdutosBanco = await resposta.json();
                     
@@ -247,12 +273,11 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
             }
         });
 
-        // 🎯 LÓGICA REFINADA: PEGA O NOME EXATO DO PRODUTO (TIPO + MODELO + COR)
+        // 🎯 LÓGICA REFINADA: PEGA O NOME EXATO DO PRODUTO
         function gerarTermoBuscaOtimizado(nomeCompleto) {
             if (!nomeCompleto) return "Calçado";
             const n = nomeCompleto.toLowerCase();
             
-            // 1. Tipo
             let tipo = "Sapato";
             if (n.includes("bota")) tipo = "Bota";
             else if (n.includes("coturno")) tipo = "Coturno";
@@ -263,7 +288,6 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
             else if (n.includes("tamanco")) tipo = "Tamanco";
             else if (n.includes("rasteira") || n.includes("rasteirinha")) tipo = "Rasteira";
 
-            // 2. Cor
             let cor = "";
             const listaCores = ["preta", "preto", "marrom", "off white", "off-white", "branco", "branca", "rosa", "dourado", "dourada", "prata", "prateada", "cobre", "caramelo", "nude", "marsala", "bege", "vinil"];
             for (let c of listaCores) {
@@ -273,7 +297,6 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
                 }
             }
 
-            // 3. Modelo (Adicionei mais modelos que você pode usar)
             let modeloExtra = "";
             const modelosConhecidos = ["capa", "montaria", "over the knee", "western", "texana", "slouchy", "biker", "animal print", "social", "slingback", "bicolor", "mary jane", "boneca", "clog", "anabela", "plataforma", "tratorado", "tratorada", "country"];
             for (let m of modelosConhecidos) {
