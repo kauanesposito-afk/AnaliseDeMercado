@@ -160,27 +160,46 @@ const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g
         }
         verificarSessao();
 
-        // Função do botão de entrar
+      // Função do botão de entrar
         async function fazerLogin() {
             const email = document.getElementById('email-login').value;
             const senha = document.getElementById('senha-login').value;
             const msgErro = document.getElementById('erro-login');
+            const btnLogin = document.querySelector('.login-btn');
             
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-            
-            if (error) {
-                msgErro.style.display = 'block';
-            } else {
-                msgErro.style.display = 'none';
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-            }
-        }
+            // 1. Prepara a tela para o carregamento
+            msgErro.style.display = 'none';
+            btnLogin.textContent = '⏳ Verificando credenciais...';
+            btnLogin.disabled = true; // Impede que a pessoa clique 10 vezes seguidas
+            btnLogin.style.opacity = '0.7';
 
-        // Função do botão de sair
-        async function fazerLogout() {
-            await supabase.auth.signOut();
-            window.location.reload();
+            try {
+                // 2. Tenta fazer o login no Supabase
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                
+                if (error) {
+                    // Se a senha estiver errada, devolve o botão ao normal e dá o "PUMM"
+                    msgErro.textContent = '"PUMM" Acesso negado!';
+                    msgErro.style.display = 'block';
+                    
+                    btnLogin.textContent = 'Entrar no Sistema';
+                    btnLogin.disabled = false;
+                    btnLogin.style.opacity = '1';
+                } else {
+                    // Se deu certo, libera o site instantaneamente
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('app-content').style.display = 'block';
+                }
+            } catch (err) {
+                // Se a internet cair ou o navegador bloquear, ele avisa aqui
+                console.error(err);
+                msgErro.textContent = '❌ Erro de conexão com o servidor.';
+                msgErro.style.display = 'block';
+                
+                btnLogin.textContent = 'Entrar no Sistema';
+                btnLogin.disabled = false;
+                btnLogin.style.opacity = '1';
+            }
         }
 
         // ==========================================
