@@ -191,27 +191,27 @@
 
     <script src="script.js"></script>
 
-    <script>
+   <script>
         // ==========================================
-        // 🔒 SISTEMA DE LOGIN BLINDADO (CHAVE COMPLETA)
+        // 🔒 SISTEMA DE LOGIN BLINDADO E LIMPO
         // ==========================================
         const SUPABASE_URL = 'https://gswtcouvgyizlykaofaw.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g3dI6XN9U7wA';
 
-        // 1. Tenta inicializar o Supabase com segurança
-        let supabase;
+        // Inicializa o banco de dados
+        let supabaseApp;
         try {
             if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                supabaseApp = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
         } catch(e) {
             console.error("Erro ao carregar módulo de segurança:", e);
         }
 
         async function verificarSessao() {
-            if (!supabase) return;
+            if (!supabaseApp) return;
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseApp.auth.getSession();
                 if (session) {
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('app-content').style.display = 'block';
@@ -220,9 +220,9 @@
         }
         verificarSessao();
 
-        // 🚀 O MOTOR DO BOTÃO DE ENTRAR (REVISADO)
+        // 🚀 O MOTOR DO BOTÃO DE ENTRAR
         async function fazerLogin() {
-            const email = document.getElementById('email-login').value.trim(); // Remove espaços acidentais no fim do e-mail
+            const email = document.getElementById('email-login').value.trim();
             const senha = document.getElementById('senha-login').value;
             const msgErro = document.getElementById('erro-login');
             const btnLogin = document.querySelector('.login-btn');
@@ -241,10 +241,10 @@
             btnLogin.style.opacity = '0.7';
 
             try {
-                if (!supabase) throw new Error("Sistema bloqueado ou não carregado pelo navegador.");
+                if (!supabaseApp) throw new Error("Sistema de segurança não carregou. Desative o AdBlock.");
 
                 // Vai no banco e tenta validar a senha
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                const { data, error } = await supabaseApp.auth.signInWithPassword({ email, password: senha });
                 
                 if (error) {
                     mostrarErro('"PUMM" Acesso negado!');
@@ -259,7 +259,7 @@
         }
 
         async function fazerLogout() {
-            if (supabase) await supabase.auth.signOut();
+            if (supabaseApp) await supabaseApp.auth.signOut();
             window.location.reload();
         }
 
