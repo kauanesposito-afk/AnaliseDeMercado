@@ -247,7 +247,7 @@
                 const { data, error } = await supabaseApp.auth.signInWithPassword({ email, password: senha });
                 
                 if (error) {
-                    mostrarErro('"PUMM" Acesso negado!');
+                    mostrarErro('ERRO REAL: ' + error.message);
                 } else {
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('app-content').style.display = 'block';
