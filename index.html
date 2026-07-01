@@ -196,7 +196,7 @@
         // 🔒 SISTEMA DE LOGIN BLINDADO E LIMPO
         // ==========================================
         const SUPABASE_URL = 'https://gswtcouvgyizlykaofaw.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_lRmYUTwAJXsJwmhNVhh3zw_N8_2hP4pUAnqjR1hR75g3dI6XN9U7wA';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzd3Rjb3V2Z3lpemx5a2FvZmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0OTAxNzQsImV4cCI6MjA5ODA2NjE3NH0.N8WceQw8lpmp-Imi37T2mGg0f0O4KfoxK9XpmgL8wxo';
 
         // Inicializa o banco de dados
         let supabaseApp;
@@ -247,7 +247,7 @@
                 const { data, error } = await supabaseApp.auth.signInWithPassword({ email, password: senha });
                 
                 if (error) {
-                    mostrarErro('ERRO REAL: ' + error.message);
+                    mostrarErro('"PUMM" Acesso negado!');
                 } else {
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('app-content').style.display = 'block';
